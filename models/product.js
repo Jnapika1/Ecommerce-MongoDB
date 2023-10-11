@@ -2,30 +2,32 @@ const mongoDb = require('mongodb');
 const getDb = require('../util/database').getDb;
 
 class Product{
-  constructor(title, price, imageUrl, description, id){
+  constructor(title, price, imageUrl, description, id, userId){
     this.title=title;
     this.price = price;
     this.imageUrl=imageUrl;
     this.description=description;
-    this._id = id;
+    this._id = id ? new mongoDb.ObjectId(id):null;
+    this.userId = userId;
   }
 
   save(){
     const db = getDb();
-    let dpOp;
+    let dbOp;
     if(this._id){
-      dbOp = db.collection('products').updateOne({_id: new mongoDb.ObjectId(this._id)}, {$set: this});
+      dbOp = db.collection('products').updateOne({_id: this._id}, {$set: this});
     }
     else{
-      dpOp = db.collection('products').insertOne(this);
+      dbOp = db.collection('products').insertOne(this);
     }
-    
-    return dbOp.then(result=>{
+    return dbOp
+    .then(result=>{
       console.log(result);
     })
     .catch(err=>{
       console.log(err);
-    });
+    })
+    
   }
   
   static fetchAll(){
